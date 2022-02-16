@@ -7,9 +7,10 @@ seattle_temps["month"] = seattle_temps["date"].dt.month_name()
 seattle_temps["day"] = seattle_temps["date"].dt.day
 
 def plot_seattle_temps(month):
+
     plot = (
-        alt.Chart(seattle_temps[seattle_temps["month"] == month],
-                  title="Daily average temperature of Seattle per month in 2010",
+        alt.Chart(seattle_temps[seattle_temps["month"] == (month or "January")],
+                  title=f"Daily average temperature of Seattle in {month or 'January'} 2010",
                   height=400,
                   width=620)
         .encode(x=alt.X("day:N",
@@ -53,4 +54,4 @@ def update_plot(month):
     return plot_seattle_temps(month)
 
 if __name__ == "__main__":
-    app.run_server(debug=True)
+    app.run_server()
