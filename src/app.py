@@ -6,13 +6,21 @@ seattle_temps = data.seattle_temps()
 seattle_temps["month"] = seattle_temps["date"].dt.month_name()
 seattle_temps["day"] = seattle_temps["date"].dt.day
 
-def plot_seattle_temps(months):
+def plot_seattle_temps(month):
     plot = (
-        alt.Chart(seattle_temps[seattle_temps["month"] == months])
-        .encode(x="day",
+        alt.Chart(seattle_temps[seattle_temps["month"] == month],
+                  title="Daily average temperature of Seattle per month in 2010",
+                  height=400,
+                  width=620)
+        .encode(x=alt.X("day:N",
+                        title="Month day",
+                        axis=alt.Axis(labelAngle=0)),
                 y=alt.Y("mean(temp)",
-                        scale=alt.Scale(zero=False)),
-                tooltip=["mean(temp)"])
+                        scale=alt.Scale(zero=False),
+                        title="Average daily temperature (F)"),
+                tooltip=alt.Tooltip(["mean(temp)"],
+                                    format=".1f",
+                                    title="Avg. temperature in F"))
         .mark_line()
     )
 
@@ -24,24 +32,25 @@ server = app.server
 app.layout = html.Div(
     [
         dcc.Dropdown(
-            id="months",
+            id="month",
             value="January",
             options={month: month for month in seattle_temps["month"].unique()}
         ),
         html.Iframe(
             id="line_temp",
-            style={"border-width": "0", "width": "100%", "height": "400px" },
-            srcDoc=plot_seattle_temps(months="January")
+            style={"border-width": "0", "width": "720px", "height": "500px", "margin-top": "50px"},
+            srcDoc=plot_seattle_temps(month="January")
         )
-    ]
+    ],
+    style={"width": "720px", "margin": "100px auto"}
 )
 
 @app.callback(
     Output("line_temp", "srcDoc"),
-    Input("months", "value")
+    Input("month", "value")
 )
-def update_plot(months):
-    return plot_seattle_temps(months)
+def update_plot(month):
+    return plot_seattle_temps(month)
 
 if __name__ == "__main__":
     app.run_server(debug=True)
